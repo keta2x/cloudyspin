@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CloudySpin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.19"></script>
+    <script src="lib/Winwheel.min.js"></script>
+</head>
+<body>
+
+    <!-- ==================== LOADER START ==================== -->
+    <div id="loader-overlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">CloudySpin</div>
+    </div>
+    <!-- ===================== LOADER END ===================== -->
+
+    <div class="app-wrapper">
+        <!-- Фоновые эффекты -->
+        <div class="background-effects">
+             <!-- 
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+            -->
+            <div class="particles"></div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <div class="top-buttons-container">
+                <a id="prize-info-button" class="top-button" href="#">🎁</a>
+                <!-- <<< НОВАЯ КНОПКА ТАБЛИЦЫ ЛИДЕРОВ >>> -->
+                <a id="leaderboard-button" class="top-button" href="#">🏆</a>
+            </div>
+            
+            <div class="layout-spacer"></div>
+
+            <!-- Колесо фортуны -->
+            <div class="wheel-section">      
+
+                <!-- Указатель (теперь будет снизу) -->
+                <div class="wheel-pointer">
+                    
+                </div>
+
+                <!-- Контейнер колеса -->
+                <div class="wheel-wrapper">
+                    <!-- <<< ИЗМЕНЕНО: Увеличиваем разрешение в 4 раза (было 420) >>> -->
+                    <canvas id="canvas" width="1680" height="1680"></canvas>
+                    <canvas id="text-canvas" width="1680" height="1680"></canvas>
+                    <!-- <<< НОВЫЙ ХОЛСТ ДЛЯ 3D-СЦЕНЫ >>> -->
+                    <canvas id="three-canvas"></canvas> 
+                    <canvas id="effects-canvas" width="1680" height="1680"></canvas>
+                                
+                <!-- Центральная кнопка SPIN -->
+                <button id="spin-button" class="center-spin-button" disabled>
+                    <div class="button-inner">
+                        <div class="button-content-wrapper"> <!-- <<< НОВЫЙ КОНТЕЙНЕР >>> -->
+                            <div class="button-icon"></div>
+                            <span class="button-text">SPIN</span> 
+                        </div>
+                    </div>
+                </button>
+                </div>
+
+                <!-- Световые блики -->
+                
+                <div class="wheel-lights">
+                    <!-- <div class="light light-1"></div>
+                    <div class="light light-2"></div>
+                    <div class="light light-3"></div>
+                    <div class="light light-4"></div> -->
+                </div>
+                
+            </div>
+
+            <div class="spacer-bottom"></div>
+            
+            <div class="stats-panel-wrapper">
+                <div class="stats-panel">
+                    <!-- Группа спинов (иконка слева) -->
+                    <div class="stat-group spins-group">
+                        <div class="stat-icon">
+                            <img src="img/spins_icon.png" alt="Spins">
+                        </div>
+                        <div class="stat-info">
+                            <!-- Разделяем лейбл и значение на два разных элемента -->
+                            <span class="stat-label" id="spins-label">Spins</span>
+                            <span class="stat-value" id="spins-count">0</span>
+                        </div>
+                    </div>
+            
+                    <!-- Группа баллов (иконка справа) -->
+                    <div class="stat-group points-group">
+                        <div class="stat-info">
+                            <span class="stat-label" id="points-label">Loyalty Points</span>
+                            <span class="stat-value" id="points-count">0</span>
+                        </div>
+                        <div class="stat-icon">
+                            <img src="img/points_icon.png" alt="Points">
+                        </div>
+                    </div>
+                </div>
+                <!-- <<< НОВЫЙ ЭЛЕМЕНТ ДЛЯ HAPPY HOUR >>> -->
+                <div id="happy-hour-indicator" class="happy-hour-indicator" style="display: none;">
+                    <span class="happy-hour-text">✨ Happy Hour is active! ✨</span>
+                </div>
+                <!-- Ссылка под панелью -->
+                <div class="spend-link" id="spend-in-bot-btn">
+                    <span>💎 Spend in the Bot ➞</span>
+                </div>
+                <!-- <<< НОВЫЙ ЭЛЕМЕНТ ДЛЯ КУРСА БАЛЛОВ >>> -->
+                <div id="points-rate-info" class="points-rate-info"></div>
+            </div>
+
+        <!-- Эффекты победы -->
+        <div class="win-effects" id="win-effects"></div>
+    </div>
+<!-- <<< НОВОЕ: Модальное окно со списком призов >>> -->
+<div id="prize-info-overlay" class="prize-info-overlay">
+    <div id="prize-info-modal" class="prize-info-modal">
+        <button id="prize-info-close-button" class="prize-info-close-button">×</button>
+        <h2 id="prize-info-title" class="prize-info-title"></h2>
+        
+        <!-- <<< ИЗМЕНЕНИЕ: Контейнер для аккордеона. Старое меню удалено. >>> -->
+        <div id="prize-info-content" class="prize-info-content">
+            <!-- JavaScript сгенерирует здесь аккордеон -->
+        </div>
+    </div>
+</div>
+
+<div id="leaderboard-overlay" class="prize-info-overlay"> <!-- Используем тот же класс для оверлея -->
+    <div id="leaderboard-modal" class="prize-info-modal"> <!-- Используем тот же класс для модалки -->
+        <button id="leaderboard-close-button" class="prize-info-close-button">×</button>
+        <h2 id="leaderboard-title" class="prize-info-title"></h2>
+        <div id="leaderboard-content" class="leaderboard-content">
+            <!-- JavaScript сгенерирует здесь список -->
+        </div>
+    </div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
