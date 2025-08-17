@@ -178,7 +178,7 @@ body {
     z-index: 10;
     width: var(--pointer-width);
     height: var(--pointer-height);
-    background: url('/static/pointer.png') no-repeat center center;
+    background: url('static/pointer.png') no-repeat center center;
     background-size: contain;
     pointer-events: none;
     /* Можно добавить анимацию, если нужно */
@@ -1238,4 +1238,5 @@ body {
 .leaderboard-prize-name[data-rarity="mythic"] {
     color: #4DFFFF;
     text-shadow: 0 0 10px rgba(77, 255, 255, 0.8);
+
 }
